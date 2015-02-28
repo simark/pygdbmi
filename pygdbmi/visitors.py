@@ -126,18 +126,24 @@ class PrettyPrintVisitor(BaseVisitor):
     def _indent(self):
         self._outfile.write('  ' * self._indent)
 
-    def visit_result_record(self, result_record):
+    def visit_result_record(self, rr):
 
-        maybe_comma = ',' if len(result_record.results) > 0 else ''
-        cresult_class = self._gos('^' + result_record.result_class,
+        maybe_comma = ',' if len(rr.results) > 0 else ''
+        ctoken = ''
+
+        if rr.token is not None:
+            ctoken = self._gos('{} '.format(rr.token.value), 'red', ['bold'])
+
+        cresult_class = self._gos('^' + rr.result_class,
                                   'green', ['bold'])
 
-        self._outfile.write('{}{}\n'.format(cresult_class, maybe_comma))
+        self._outfile.write('{}{}{}\n'.format(ctoken, cresult_class,
+                                              maybe_comma))
 
         with self._indent:
-            for i, result in enumerate(result_record.results):
+            for i, result in enumerate(rr.results):
                 self.visit(result)
-                if i == len(result_record.results) - 1:
+                if i == len(rr.results) - 1:
                     self._outfile.write('\n')
                 else:
                     self._outfile.write(',\n')
