@@ -25,6 +25,7 @@ import argparse
 from pygdbmi import parser
 from pygdbmi import visitors
 
+
 def main():
     argparser = argparse.ArgumentParser(description='Pretty-print some GDB MI records')
     argparser.add_argument('input_file',
@@ -36,18 +37,31 @@ def main():
     input_file = args.input_file
 
     if input_file == '-':
-        mi_text = sys.stdin.read()
+        f = sys.stdin
+
     else:
         try:
-            with open(input_file) as f:
-                mi_text = f.read()
+            f = open(input_file)
         except FileNotFoundError as e:
-            sys.stderr.write(str(e) + '\n')
+            print('Error: file not found: {}'.format(e), file=sys.stderr)
             sys.exit(1)
 
-    ast = parser.parse(mi_text)
-    visitor = visitors.PrettyPrintVisitor()
-    visitor.visit(ast)
+    for line in f:
+        if line[-1] != '\n':
+            line += '\n'
+
+        try:
+            ast = parser.parse(line)
+        except parser.ParseError as e:
+            print('Error: parse error: {}'.format(e),
+                  file=sys.stderr)
+            sys.exit(1)
+
+        visitor = visitors.PrettyPrintVisitor()
+        visitor.visit(ast)
+
+    if input_file != '-':
+        f.close()
 
 
 if __name__ == '__main__':
