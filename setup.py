@@ -58,4 +58,6 @@ setup(
     entry_points={
         'console_scripts': console_scripts
     },
+    test_suite='nose.collector',
+    tests_require=['nose'],
 )
