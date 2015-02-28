@@ -43,6 +43,9 @@ console_scripts = [
    'gdb-mi-pprint=pygdbmi.cli.pprint:main'
 ]
 
+extras_require = {
+    'color': ['termcolor'],
+}
 
 setup(
     name='pygdbmi',
@@ -60,4 +63,5 @@ setup(
     },
     test_suite='nose.collector',
     tests_require=['nose'],
+    extras_require=extras_require,
 )
