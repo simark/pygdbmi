@@ -11,11 +11,11 @@ class TestPPrintVisitor(unittest.TestCase):
     def setUp(self):
         pass
 
-    def _test_pprint(self, input_, expected_output):
+    def _test_pprint(self, input_, expected_output, strict):
         f = io.StringIO()
 
-        ast = parser.parse(input_)
-        visitor = visitors.PrettyPrintVisitor(outfile=f)
+        ast = parser.parse(input_, strict)
+        visitor = visitors.PrettyPrintVisitor(outfile=f, en_colors=False)
         visitor.visit(ast)
 
         result = f.getvalue()
@@ -23,8 +23,9 @@ class TestPPrintVisitor(unittest.TestCase):
         self.assertEqual(result, expected_output)
 
     def test_simple(self):
-        self._test_pprint('^done\n', '^done\n')
-        self._test_pprint('^done,a="2"\n', '^done,\n  a = "2"\n')
+        self._test_pprint('^done\n(gdb)\n', '^done\n', True)
+        self._test_pprint('^done,a="2"\n(gdb)\n', '^done,\n  a = "2"\n', True)
+        self._test_pprint('712^exit\n', '712^exit\n', False)
 
     def test_one(self):
         input_ = '4^done,numchild="2",displayhint="array",children=[child={' \
@@ -53,4 +54,4 @@ class TestPPrintVisitor(unittest.TestCase):
             '  ],\n' \
             '  has_more = "0"\n'
 
-        self._test_pprint(input_, expected_output)
+        self._test_pprint(input_, expected_output, False)
