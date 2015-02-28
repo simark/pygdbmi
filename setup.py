@@ -26,6 +26,7 @@ import os
 import sys
 import subprocess
 from setuptools import setup
+from setuptools import find_packages
 
 
 # make sure we run Python 3+ here
@@ -34,24 +35,27 @@ if v.major < 3:
     sys.stderr.write('Sorry, pygdbmi needs Python 3\n')
     sys.exit(1)
 
-
-packages = [
-    'pygdbmi',
-]
-
-
 install_requires = [
     'pyPEG2',
 ]
 
+console_scripts = [
+   'gdb-mi-pprint=pygdbmi.cli.pprint:main'
+]
 
-setup(name='pygdbmi',
-      version='0.0.1',
-      description='GDB/MI parser/generator',
-      author='Philippe Proulx',
-      author_email='eeppeliteloop@gmail.com',
-      license='MIT',
-      keywords='gdb mi',
-      url='https://github.com/eepp/pygdbmi',
-      packages=packages,
-      install_requires=install_requires)
+
+setup(
+    name='pygdbmi',
+    version='0.0.1',
+    description='GDB/MI parser/generator',
+    author='Philippe Proulx',
+    author_email='eeppeliteloop@gmail.com',
+    license='MIT',
+    keywords='gdb mi',
+    url='https://github.com/eepp/pygdbmi',
+    packages=find_packages(exclude=['tests']),
+    install_requires=install_requires,
+    entry_points={
+        'console_scripts': console_scripts
+    },
+)
