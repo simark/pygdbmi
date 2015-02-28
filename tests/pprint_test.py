@@ -27,12 +27,12 @@ class TestPPrintVisitor(unittest.TestCase):
         self._test_pprint('^done,a="2"\n', '^done,\n  a = "2"\n')
 
     def test_one(self):
-        input_ = '^done,numchild="2",displayhint="array",children=[child={' \
+        input_ = '4^done,numchild="2",displayhint="array",children=[child={' \
                  'name="var3.[0]",exp="[0]",numchild="1",type="my_class",' \
                  'thread-id="1"},child={name="var3.[1]",exp="[1]",numchild=' \
                  '"1",type="my_class",thread-id="1"}],has_more="0"\n'
         expected_output = \
-            '^done,\n' \
+            '4^done,\n' \
             '  numchild = "2",\n' \
             '  displayhint = "array",\n' \
             '  children = [\n' \

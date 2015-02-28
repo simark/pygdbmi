@@ -132,7 +132,7 @@ class PrettyPrintVisitor(BaseVisitor):
         ctoken = ''
 
         if rr.token is not None:
-            ctoken = self._gos('{} '.format(rr.token.value), 'red', ['bold'])
+            ctoken = self._gos('{}'.format(rr.token.value), 'red', ['bold'])
 
         cresult_class = self._gos('^' + rr.result_class,
                                   'green', ['bold'])
