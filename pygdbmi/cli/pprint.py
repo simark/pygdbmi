@@ -32,6 +32,8 @@ def main():
                            metavar='input-file',
                            type=str,
                            help='The file from which to read the MI data. Use - for stdin.')
+    argparser.add_argument('-c', '--colors', action='store_true',
+                           help='Enable colored output, if possible')
 
     args = argparser.parse_args()
     input_file = args.input_file
@@ -57,7 +59,7 @@ def main():
                   file=sys.stderr)
             sys.exit(1)
 
-        visitor = visitors.PrettyPrintVisitor()
+        visitor = visitors.PrettyPrintVisitor(en_colors=args.colors)
         visitor.visit(ast)
 
     if input_file != '-':
