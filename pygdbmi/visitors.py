@@ -22,8 +22,13 @@
 # THE SOFTWARE.
 
 import sys
-
 from pygdbmi import parser
+
+try:
+    from termcolor import colored
+except ImportError:
+    def colored(s, c, attrs=[]):
+        return s
 
 ''' TODO: convert to extend BaseVisitor
 class GenerateObjectsVisitor:
@@ -100,37 +105,61 @@ class PrettyPrintVisitor(BaseVisitor):
         def __call__(self):
             return '  ' * self._level
 
-    def __init__(self, outfile=sys.stdout):
+    def __init__(self, outfile=sys.stdout, en_colors=False):
         super(PrettyPrintVisitor, self).__init__()
         self._outfile = outfile
         self._indent = PrettyPrintVisitor.Indenter()
 
+        if en_colors:
+            self._gos = PrettyPrintVisitor._get_out_str_colors
+        else:
+            self._gos = PrettyPrintVisitor._get_out_str_no_colors
+
+    @staticmethod
+    def _get_out_str_no_colors(s, c, attrs=[]):
+        return s
+
+    @staticmethod
+    def _get_out_str_colors(s, c, attrs=[]):
+        return colored(s, c, attrs=attrs)
+
     def _indent(self):
         self._outfile.write('  ' * self._indent)
 
-    def visit_result_record(self, result_record):
+    def visit_result_record(self, rr):
 
-        maybe_comma = ',' if len(result_record.results) > 0 else ''
+        maybe_comma = ',' if len(rr.results) > 0 else ''
+        ctoken = ''
 
-        self._outfile.write('^{}{}\n'.format(result_record.result_class, maybe_comma))
+        if rr.token is not None:
+            ctoken = self._gos('{} '.format(rr.token.value), 'red', ['bold'])
+
+        cresult_class = self._gos('^' + rr.result_class,
+                                  'green', ['bold'])
+
+        self._outfile.write('{}{}{}\n'.format(ctoken, cresult_class,
+                                              maybe_comma))
 
         with self._indent:
-            for i, result in enumerate(result_record.results):
+            for i, result in enumerate(rr.results):
                 self.visit(result)
-                if i == len(result_record.results) - 1:
+                if i == len(rr.results) - 1:
                     self._outfile.write('\n')
                 else:
                     self._outfile.write(',\n')
 
     def visit_result(self, result):
-        self._outfile.write('{}{} = '.format(self._indent(), result.variable.name))
+        cvariable_name = self._gos(result.variable.name, 'blue')
+        self._outfile.write('{}{} = '.format(self._indent(), cvariable_name))
         self.visit(result.value)
 
     def visit_value(self, value):
         self.visit(value.value)
 
     def visit_cstring(self, cstring):
-        self._outfile.write('"{}"'.format(cstring.value))
+        cquote = self._gos('"', 'yellow')
+        cvalue = self._gos(cstring.value, 'yellow', ['bold'])
+        self._outfile.write('{quot}{val}{quot}'.format(quot=cquote, val=cvalue))
 
     def visit_list(self, list_):
         self._outfile.write('[\n')
