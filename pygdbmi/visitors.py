@@ -150,6 +150,7 @@ class PrettyPrintVisitor(BaseVisitor):
 
         with self._indent:
             for i, result in enumerate(rr.results):
+                self._outfile.write(self._indent())
                 self.visit(result)
                 if i == len(rr.results) - 1:
                     self._outfile.write('\n')
@@ -158,7 +159,7 @@ class PrettyPrintVisitor(BaseVisitor):
 
     def visit_result(self, result):
         cvariable_name = self._gos(result.variable.name, 'blue')
-        self._outfile.write('{}{} = '.format(self._indent(), cvariable_name))
+        self._outfile.write('{} = '.format(cvariable_name))
         self.visit(result.value)
 
     def visit_value(self, value):
@@ -173,6 +174,7 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write('[\n')
         with self._indent:
             for i, element in enumerate(list_.elements):
+                self._outfile.write(self._indent())
                 self.visit(element)
                 if i == len(list_.elements) - 1:
                     self._outfile.write('\n')
@@ -185,6 +187,7 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write('{\n')
         with self._indent:
             for i, element in enumerate(tuple_.elements):
+                self._outfile.write(self._indent())
                 self.visit(element)
                 if i == len(tuple_.elements) - 1:
                     self._outfile.write('\n')
