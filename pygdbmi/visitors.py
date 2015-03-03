@@ -66,10 +66,15 @@ class BaseVisitor:
             parser.CString: self.visit_cstring,
             parser.List: self.visit_list,
             parser.Tuple: self.visit_tuple,
+            parser.Output: self.visit_output
         }
 
     def visit(self, node):
-        self._visit_fns[type(node)](node)
+        if type(node) in self._visit_fns:
+            self._visit_fns[type(node)](node)
+
+    def visit_output(self, node):
+        pass
 
     def visit_result(self, node):
         pass
@@ -126,8 +131,11 @@ class PrettyPrintVisitor(BaseVisitor):
     def _indent(self):
         self._outfile.write('  ' * self._indent)
 
-    def visit_result_record(self, rr):
+    def visit_output(self, output):
+        if output.result_record is not None:
+            self.visit(output.result_record)
 
+    def visit_result_record(self, rr):
         maybe_comma = ',' if len(rr.results) > 0 else ''
         ctoken = ''
 

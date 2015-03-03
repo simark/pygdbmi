@@ -39,31 +39,24 @@ def main():
     input_file = args.input_file
 
     if input_file == '-':
-        f = sys.stdin
-
+        mi_output = sys.stdin.read()
     else:
         try:
-            f = open(input_file)
+            with open(input_file) as f:
+                mi_output = f.read()
         except FileNotFoundError as e:
             print('Error: file not found: {}'.format(e), file=sys.stderr)
             sys.exit(1)
 
-    for line in f:
-        if line[-1] != '\n':
-            line += '\n'
+    try:
+        tree = parser.parse(mi_output, False)
+    except parser.ParseError as e:
+        print('Error: parse error: {}'.format(e),
+              file=sys.stderr)
+        sys.exit(1)
 
-        try:
-            ast = parser.parse(line)
-        except parser.ParseError as e:
-            print('Error: parse error: {}'.format(e),
-                  file=sys.stderr)
-            sys.exit(1)
-
-        visitor = visitors.PrettyPrintVisitor(en_colors=args.colors)
-        visitor.visit(ast)
-
-    if input_file != '-':
-        f.close()
+    visitor = visitors.PrettyPrintVisitor(en_colors=args.colors)
+    visitor.visit(tree)
 
 
 if __name__ == '__main__':
