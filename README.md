@@ -29,3 +29,7 @@ CLI examples:
     gdb-mi-pprint --colors my-data
     cat my-data | gdb-mi-pprint -
     cat my-data | gdb-mi-pprint - --colors
+    
+thanks
+------
+Many thanks to Philippe Proulx ([eepp](https://github.com/eepp)) for writing the parser.
