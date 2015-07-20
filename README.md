@@ -32,4 +32,4 @@ CLI examples:
     
 thanks
 ------
-Many thanks to Philippe Proulx ([eepp](https://github.com/eepp)) for writing the parser.
+Many thanks to [Philippe Proulx](https://github.com/eepp) for writing the parser.
