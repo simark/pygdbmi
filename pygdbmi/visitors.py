@@ -171,6 +171,10 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write('{quot}{val}{quot}'.format(quot=cquote, val=cvalue))
 
     def visit_list(self, list_):
+        if len(list_.elements) == 0:
+            self._outfile.write('[]')
+            return
+
         self._outfile.write('[\n')
         with self._indent:
             for i, element in enumerate(list_.elements):
@@ -184,6 +188,10 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write(']')
 
     def visit_tuple(self, tuple_):
+        if len(tuple_.elements) == 0:
+            self._outfile.write('{}')
+            return
+
         self._outfile.write('{\n')
         with self._indent:
             for i, element in enumerate(tuple_.elements):
