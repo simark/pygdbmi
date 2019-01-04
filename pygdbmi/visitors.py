@@ -61,6 +61,10 @@ class BaseVisitor:
     def __init__(self):
         self._visit_fns = {
             parser.ResultRecord: self.visit_result_record,
+            parser.OutOfBandRecord: self.visit_out_of_band_record,
+            parser.AsyncRecord: self.visit_async_record,
+            parser.NotifyAsyncOutput: self.visit_notify_async_record,
+            parser.AsyncOutput: self.visit_async_output,
             parser.Result: self.visit_result,
             parser.Value: self.visit_value,
             parser.CString: self.visit_cstring,
@@ -72,6 +76,9 @@ class BaseVisitor:
     def visit(self, node):
         if type(node) in self._visit_fns:
             self._visit_fns[type(node)](node)
+        else:
+            fmt = 'Visiting type {} is not implemented.'
+            raise NotImplementedError(fmt.format(type(node)))
 
     def visit_output(self, node):
         pass
@@ -80,6 +87,18 @@ class BaseVisitor:
         pass
 
     def visit_result_record(self, node):
+        pass
+
+    def visit_out_of_band_record(self, node):
+        self.visit(node.record)
+
+    def visit_async_record(self, node):
+        self.visit(node.output)
+
+    def visit_notify_async_record(self, node):
+        pass
+
+    def visit_async_output(self, node):
         pass
 
     def visit_value(self, node):
@@ -132,8 +151,21 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write('  ' * self._indent)
 
     def visit_output(self, output):
+        for oob_record in output.oob_records:
+            self.visit(oob_record)
+
         if output.result_record is not None:
             self.visit(output.result_record)
+
+    def _print_results(self, results):
+        with self._indent:
+            for i, result in enumerate(results):
+                self._outfile.write(self._indent())
+                self.visit(result)
+                if i == len(results) - 1:
+                    self._outfile.write('\n')
+                else:
+                    self._outfile.write(',\n')
 
     def visit_result_record(self, rr):
         maybe_comma = ',' if len(rr.results) > 0 else ''
@@ -148,14 +180,20 @@ class PrettyPrintVisitor(BaseVisitor):
         self._outfile.write('{}{}{}\n'.format(ctoken, cresult_class,
                                               maybe_comma))
 
-        with self._indent:
-            for i, result in enumerate(rr.results):
-                self._outfile.write(self._indent())
-                self.visit(result)
-                if i == len(rr.results) - 1:
-                    self._outfile.write('\n')
-                else:
-                    self._outfile.write(',\n')
+        self._print_results(rr.results)
+
+    def visit_notify_async_record(self, ar):
+        self._outfile.write(self._gos('=', 'green', ['bold']))
+        self.visit(ar.output)
+
+    def visit_async_output(self, output):
+        self._outfile.write(self._gos(output.async_class, 'green', ['bold']))
+
+        if output.results:
+            self._outfile.write(',')
+        self._outfile.write('\n')
+
+        self._print_results(output.results)
 
     def visit_result(self, result):
         cvariable_name = self._gos(result.variable.name, 'blue')
